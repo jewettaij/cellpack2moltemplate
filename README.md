@@ -104,8 +104,8 @@ ConvertCellPACK(fin,
                 'HIV-1_0.1.cpr',
 		fout,
 		'system.lt',
-		''
-                0.1
+		'',
+                0.1,
                 'lj/cut',
                 {'lj/cut':'http/lpairstyle2docs},
 		{'lj/cut':'25.0'},
