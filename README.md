@@ -16,7 +16,7 @@ where "HIV-1_0.1.cpr" is a JSON file in CellPACK output format,
 cellpack2lt.py converts json formatted files created by CellPACK into
 moltemplate format.
 These files can be read by moltemplate and converted into files which the
-LAMMPS simulation program can read sing the following command:
+LAMMPS simulation program can read using the following command:
 
     moltemplate -nocheck system.lt
 
@@ -27,7 +27,7 @@ Then you can run a LAMMPS simulation using:
 The "run.in" file contains several LAMMPS commands which control
 how the simulations will be carried out
 (including "rigid" constraints, Verlet timestep size,
- temperature, langevin damping parameters, and simulation duration)
+ temperature, Langevin damping parameters, and simulation duration)
 There is an example "run.in" file in the "doc" subdirectory.
 
 If VMD is installed, you can run moltemplate.sh with the additional
