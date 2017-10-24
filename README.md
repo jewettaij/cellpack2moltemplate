@@ -16,19 +16,9 @@ where "HIV-1_0.1.cpr" is a JSON file in CellPACK output format,
 cellpack2lt.py converts json formatted files created by CellPACK into
 moltemplate format.
 These files can be read by moltemplate and converted into files which the
-LAMMPS simulation program can read, including protein structure,
-and force field information (currently, this only includes particle radii)
-using the following command:
+LAMMPS simulation program can read sing the following command:
 
     moltemplate -nocheck system.lt
-
-If VMD is installed, you can also include the optional "-vmd" argument to view
-the structure using VMD.  An optional file, "vmd_commands.tcl", is also created
-so that the radii of the particles are displayed correctly in VMD.
-(To get this to work, you will have to load the "vmd_commands.tcl" file from 
- within VMD by selecting the "Extensions"->"Tk Console", and "File"->"Load File"
- menu options.  Controlling other visual features such as color is
- planned for the future.)
 
 Then you can run a LAMMPS simulation using:
 
@@ -39,6 +29,15 @@ how the simulations will be carried out
 (including "rigid" constraints, Verlet timestep size,
  temperature, langevin damping parameters, and simulation duration)
 There is an example "run.in" file in the "doc" subdirectory.
+
+If VMD is installed, you can run moltemplate.sh with the additional
+"-vmd" argument to view the structure using VMD immediately.
+An optional file, "vmd_commands.tcl", is also created
+so that the radii of the particles are displayed correctly in VMD.
+(To get this to work, you will have to load the "vmd_commands.tcl" file from 
+ within VMD by selecting the "Extensions"->"Tk Console", and "File"->"Load File"
+ menu options.  Controlling other visual features such as color is
+ planned for the future.)
 
 
 ## Optional Arguments

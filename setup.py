@@ -10,7 +10,13 @@ setup(
 
   author_email='jewett.aij@gmail.com',
 
-  url='https://jensenlab.caltech.edu',
+  url='https://github.com/jewettaij/cellpack2moltemplate',
+
+  download_url='https://github.com/jewettaij/cellpack2moltemplate/archive/v0.0.1.zip',
+
+  version='0.0.1',
+
+  keywords=['CellPACK', 'moltemplate', 'simulation', 'LAMMPS'],
 
   # BSD 3-Clause License:
   # - http://choosealicense.com/licenses/bsd-3-clause
@@ -19,12 +25,16 @@ setup(
   license='BSD',
 
   classifiers=['Development Status :: 3 Alpha',
-               'License :: OSI Approved :: BSD License',
                'Environment :: Console',
+               'License :: OSI Approved :: BSD License',
                'Operating System :: MacOS :: MacOS X',
                'Operating System :: POSIX :: Linux',
-               'Operating System :: Microsoft :: Windows'
-  ],
+               'Operating System :: Microsoft :: Windows',
+               'Programming Language :: Python',
+               'Programming Language :: Unix Shell',
+               'Topic :: Multimedia :: Graphics :: 3D Modeling',
+               'Topic :: Scientific/Engineering :: Chemistry',
+               'Intended Audience :: Science/Research'],
 
   entry_points={
       'console_scripts': ['cellpack2lt.py=cellpack2moltemplate.cellpack2lt:main']
