@@ -1,0 +1,55 @@
+# -- Init Section --
+
+include system.in.init
+
+# -- Atom Definition Section --
+
+print '-----------------------------------------------------------------------'
+print 'Make sure you run LAMMPS on \"run.in.min\" before running this simulation.'
+print '(Minimization is necessary beforehand to avoid initial particle overlap.)'
+print '-----------------------------------------------------------------------'
+
+
+read_data system_after_min.data
+
+# -- Settings Section --
+
+include system.in.settings
+
+# -- Run Section --
+
+
+dump            1 all custom 5000 traj.lammpstrj id mol type x y z ix iy iz
+
+thermo_style    custom step temp pe etotal epair ebond eangle edihed
+thermo          100       # time interval for printing out "thermo" data
+thermo_modify   norm yes flush yes
+
+# Integrate the equations of motion:
+fix fxRigid all rigid molecule
+
+# Only compute forces between particles in different molecules
+# (no need to compute forces between particles in the same rigid molecule)
+neigh_modify exclude molecule/intra all
+
+# Reduce the time spent computing neighbor lists by increasing the bin size
+# and using "multi" style (needed when a large range of radii are in use)
+neighbor 10.0 multi
+
+
+# Decide how to split up the simulation volume so that the same number of
+# particles get assigned to every processor.  Do this periodically
+# (As opposed to dividing up the simulation volume into equal size rectangles
+# COMMENTING OUT NEXT LINE: THIS IS NOT ALWAYS A GOOD IDEA.)
+# fix fxBalance all balance 20000 xyz 20 1.4
+
+
+
+
+
+timestep        0.005
+fix fxLan     all langevin 0.5961621 0.5961621 500.0 48279
+run 10000000
+unfix fxLan
+
+

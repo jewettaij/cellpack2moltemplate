@@ -11,8 +11,8 @@ moltemplate format.
 """
 
 g_program_name = __file__.split('/')[-1]   # = 'cellpack2lt.py'
-__version__ = '0.0.1'
-__date__ = '2017-10-17'
+__version__ = '0.0.2'
+__date__ = '2017-10-25'
 
 g_control_vmd_colors = False
 
@@ -458,7 +458,7 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
 
     file_out.write('   write_once("In Settings") {\n')
     for iradius in sorted(ir_needed):
-        rcut = iradius * delta_r
+        rcut = 2 * iradius * delta_r   #(don't forget the 2)
         r = rcut / (2.0**(1.0/6))
         file_out.write('     pair_coeff ' +
                        '@atom:A' + str(iradius) + ' ' +
@@ -535,11 +535,20 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
 
     file_out.write('\n'
                    '\n'
-                   '  # Note: Use a rigid-body integrator to keep the particles\n'
-                   '  #       in each molecule from moving relative to eachother:\n'
+                   '  ### Note: Use a rigid-body integrator to keep the particles\n'
+                   '  ###      in each molecule from moving relative to eachother:\n'
                    #'\n'
                    #'  #write_once("In Settings") {\n'
-                   '  # fix fxRigid all rigid molecule\n'
+                   '  # group gRigid @atom:.../ForceField/*\n'
+                   '  # http://lammps.sandia.gov/doc/group.html\n'
+                   '  #\n'
+                   '  # fix fxRigid gRigid rigid molecule\n'
+                   '  # http://lammps.sandia.gov/doc/fix_rigid.html\n'
+                   '  #\n'
+                   '  ### This next line greatly increases the speed of the simulation:\n'
+                   '  ### No need to calculate forces between particles in the same rigid molecule\n'
+                   '  # neigh_modify exclude molecule/intra gRigid\n'
+                   '  # http://lammps.sandia.gov/doc/neigh_modify.html\n'
                    #'  #}\n'
                    '\n')
     file_out.write('}  # end of the "ForceField" object definition\n'

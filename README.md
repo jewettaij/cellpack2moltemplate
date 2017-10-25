@@ -24,6 +24,9 @@ Then you can run a LAMMPS simulation using:
 
     lmp_mpi -i run.in
 
+(...where "lmp_mpi" is the name of your LAMMPS binary.
+    It is also frequently named "lmp_ubuntu")
+
 The "run.in" file contains several LAMMPS commands which control
 how the simulations will be carried out
 (including "rigid" constraints, Verlet timestep size,
@@ -107,11 +110,40 @@ ConvertCellPACK(fin,
 		'',
                 0.1,
                 'lj/cut',
-                {'lj/cut':'http/lpairstyle2docs},
+                {'lj/cut':'http://lammps.sandia.gov/doc/pair_lj.html'},
 		{'lj/cut':'25.0'},
                 0.5961621,     # = k_B*temperature at 300K in kcal/mole
 		1.0)
 ```
+
+## Installation Instructions
+
+There are two ways to install cellpack2moltemplate:
+
+## Installation using pip
+
+If you are familiar with pip, then run the following command from within the directory where this README file is located:
+
+    pip install .
+
+Make sure that your default pip install bin directory is in your PATH.  (This is usually something like ~/.local/bin/ or ~/anaconda3/bin/.  If you have installed anaconda, this will be done for you automatically.)  Later, you can uninstall cellpack2moltemplate using:
+
+    pip uninstall cellpack2moltemplate
+
+
+## Manual Installation method:
+
+Alternatively, you can edit your PATH variable manually to include
+the subdirectory where the cellpack2lt.py script is located,
+as well as the subdirectory where most of the python scripts are located.
+Suppose the directory with this README file is named ``cellpack2moltemplate''
+and is located in your home directory:
+
+If you use the bash shell, typically you would edit your 
+`~/.profile`, `~/.bash_profile` or `~/.bashrc` files 
+to contain the following lines:
+
+    export PATH="$PATH:$HOME/cellpack2moltemplate/cellpack2moltemplate"
 
 ## Requirements
 
