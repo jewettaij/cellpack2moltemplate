@@ -12,7 +12,7 @@ setup(
 
   url='https://github.com/jewettaij/cellpack2moltemplate',
 
-  download_url='https://github.com/jewettaij/cellpack2moltemplate/archive/v0.0.1.zip',
+  download_url='https://github.com/jewettaij/cellpack2moltemplate/archive/v0.0.2.zip',
 
   version='0.0.2',
 
