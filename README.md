@@ -15,7 +15,7 @@ and "system.lt" is the corresponding file converted to moltemplate format.
 
 CellPACK is a tool for building models of huge biomolecular
 assemblies, organelles, viruses, and even whole cells.
-Moltemplate is a molecule builder and a force field database system
+Moltemplate is a molecule builder and force field database system
 designed for building general coarse grained models of molecular machines.
 Moltemplate creates input files for the LAMMPS and ESPResSo molecular
 dynamics simulation engines.
