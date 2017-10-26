@@ -18,7 +18,7 @@ lmp_ubuntu -i run.in.min
 
 
 # (Minimizing the HIV example with ~100000 particles takes approximately 
-#  10 minutes or so on a 2-core laptop without GPU acceleration.)
+#  45 minutes or so on a 2-core laptop without GPU acceleration.)
 # This will create a file named "system_after_min.data" which we will
 # need in the next step.
 # Note during the minimization process, some of the proteins fly out of the core
