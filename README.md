@@ -31,7 +31,7 @@ The "run.in" file contains several LAMMPS commands which control
 how the simulations will be carried out
 (including "rigid" constraints, Verlet timestep size,
  temperature, Langevin damping parameters, and simulation duration)
-There is an example "run.in" file in the "doc" subdirectory.
+(See the "examples" subdirectory for details.)
 
 If VMD is installed, you can run moltemplate.sh with the additional
 "-vmd" argument to view the structure using VMD immediately.
