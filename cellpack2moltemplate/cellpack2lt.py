@@ -11,8 +11,8 @@ moltemplate format.
 """
 
 g_program_name = __file__.split('/')[-1]   # = 'cellpack2lt.py'
-__version__ = '0.0.3'
-__date__ = '2017-10-25'
+__version__ = '0.0.4'
+__date__ = '2017-10-26'
 
 g_control_vmd_colors = False
 
@@ -257,7 +257,12 @@ def ConvertMolecule(molecule,
             for I in range(0, len(Xnid[n])):  #loop over atoms
                 for d in range(0, 3):
                     X_orig[d] = molecule['positions'][n][I][d]
-                    AffineTransformQ(X, X_orig, quaternions[i], deltaXs[i])
+                    AffineTransformQ(X, X_orig,
+                                     [quaternions[i][0],
+                                      -quaternions[i][1],
+                                      -quaternions[i][2],
+                                      -quaternions[i][3]],
+                                      deltaXs[i])
                 AdjustBounds(bounds, X)
 
     if g_control_vmd_colors:
