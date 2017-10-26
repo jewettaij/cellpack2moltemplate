@@ -41,7 +41,7 @@ so that the radii of the particles are displayed correctly in VMD.
  within VMD by selecting the "Extensions"->"Tk Console", and "File"->"Load File"
  menu options.  Controlling other visual features such as color is
  planned for the future.)
-Instructions explaining how to load LAMMPS trajectories into VMD are
+Instructions explaining how to visualize trajectories in VMD are
 included with the example(s).
 
 

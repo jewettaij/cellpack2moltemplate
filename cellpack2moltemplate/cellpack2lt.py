@@ -11,7 +11,7 @@ moltemplate format.
 """
 
 g_program_name = __file__.split('/')[-1]   # = 'cellpack2lt.py'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __date__ = '2017-10-25'
 
 g_control_vmd_colors = False
@@ -240,9 +240,9 @@ def ConvertMolecule(molecule,
         l_instances.append(name + '_instances[' + str(i) + '] = new ' + name +
                            '.quat(' + 
                            str(quaternions[i][0]) + ',' +
-                           str(quaternions[i][1]) + ',' +
-                           str(quaternions[i][2]) + ',' +
-                           str(quaternions[i][3]) +
+                           str(-quaternions[i][1]) + ',' +
+                           str(-quaternions[i][2]) + ',' +
+                           str(-quaternions[i][3]) +
                            ').move(' + 
                            str(deltaXs[i][0]) + ',' +
                            str(deltaXs[i][1]) + ',' +
