@@ -20,10 +20,10 @@ designed for building general coarse grained models of molecular machines.
 Moltemplate creates input files for the LAMMPS and ESPResSo molecular
 dynamics simulation engines.
 
-The "cellpack2lt.py" script converts JSON files created by
-CellPACK into moltemplate format.
-These files can subsequently be converted into files which
-LAMMPS can read using the following command:
+The "cellpack2lt.py" script converts JSON files created by CellPACK
+into moltemplate format so that these systems can be simulated in LAMMPS.
+The files created by cellpack2lt.py can subsequently be converted into files
+which LAMMPS can read using the following command:
 
     moltemplate system.lt
 
