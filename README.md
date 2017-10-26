@@ -13,9 +13,17 @@ and "system.lt" is the corresponding file converted to moltemplate format.
 
 ![Initial test of cellpack2lt.py on an HIV virus structure created with CellPACK, converted into moltemplate format, and rendered using VMD](./doc/images/HIV_test_2017-10-23_LR.jpg)
 
-cellpack2lt.py converts JSON files created by CellPACK into moltemplate format.
-These files can subsequently be converted into files which the LAMMPS
-simulation software can read using the following command:
+CellPACK is a tool for building models of huge biomolecular
+assemblies, organelles, viruses, and even whole cells.
+Moltemplate is a molecule builder and a force field database system
+designed for building general coarse grained models of molecular machines.
+Moltemplate creates input files for the LAMMPS and ESPResSo molecular
+dynamics simulation engines.
+
+The "cellpack2lt.py" script converts JSON files created by
+CellPACK into moltemplate format.
+These files can subsequently be converted into files which
+LAMMPS can read using the following command:
 
     moltemplate system.lt
 
