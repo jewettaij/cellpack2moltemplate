@@ -6,17 +6,16 @@ cellpack2moltemplate
     cellpack2lt.py -in HIV-1_0.1.cpr -out system.lt      # -- or --
     cellpack2lt.py  <  HIV-1_0.1.cpr  >   system.lt
 
-where "HIV-1_0.1.cpr" is a JSON file in CellPACK output format,
-  and "system.lt" is the corresponding file converted to moltemplate format
+...where "HIV-1_0.1.cpr" is a file created by CellPACK,
+and "system.lt" is the corresponding file converted to moltemplate format.
 
 ##  Description
 
 ![Initial test of cellpack2lt.py on an HIV virus structure created with CellPACK, converted into moltemplate format, and rendered using VMD](./doc/images/HIV_test_2017-10-23_LR.jpg)
 
-cellpack2lt.py converts json formatted files created by CellPACK into
-moltemplate format.
-These files can be read by moltemplate and converted into files which the
-LAMMPS simulation program can read using the following command:
+cellpack2lt.py converts JSON files created by CellPACK into moltemplate format.
+These files can subsequently be converted into files which the LAMMPS
+simulation software can read using the following command:
 
     moltemplate system.lt
 
@@ -25,7 +24,7 @@ Then you can run a LAMMPS simulation using:
     lmp_mpi -i run.in
 
 (...where "lmp_mpi" is the name of your LAMMPS binary.
-    It is also frequently named "lmp_ubuntu")
+It is also frequently named "lmp_ubuntu")
 
 The "run.in" file contains several LAMMPS commands which control
 how the simulations will be carried out
