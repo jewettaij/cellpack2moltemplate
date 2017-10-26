@@ -7,7 +7,7 @@ cellpack2moltemplate
     cellpack2lt.py  <  HIV-1_0.1.cpr  >   system.lt
 
 where "HIV-1_0.1.cpr" is a JSON file in CellPACK output format,
-  and "HIV-1_0.1.lt" is the corresponding file converted to moltemplate format
+  and "system.lt" is the corresponding file converted to moltemplate format
 
 ##  Description
 
