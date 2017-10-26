@@ -18,7 +18,7 @@ moltemplate format.
 These files can be read by moltemplate and converted into files which the
 LAMMPS simulation program can read using the following command:
 
-    moltemplate -nocheck system.lt
+    moltemplate system.lt
 
 Then you can run a LAMMPS simulation using:
 
@@ -41,6 +41,8 @@ so that the radii of the particles are displayed correctly in VMD.
  within VMD by selecting the "Extensions"->"Tk Console", and "File"->"Load File"
  menu options.  Controlling other visual features such as color is
  planned for the future.)
+Instructions explaining how to load LAMMPS trajectories into VMD are
+included with the example(s).
 
 
 ## Optional Arguments
