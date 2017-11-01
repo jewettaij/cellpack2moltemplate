@@ -11,8 +11,8 @@ moltemplate format.
 """
 
 g_program_name = __file__.split('/')[-1]   # = 'cellpack2lt.py'
-__version__ = '0.0.4'
-__date__ = '2017-10-26'
+__version__ = '0.0.5'
+__date__ = '2017-10-31'
 
 g_control_vmd_colors = False
 
@@ -240,9 +240,9 @@ def ConvertMolecule(molecule,
         l_instances.append(name + '_instances[' + str(i) + '] = new ' + name +
                            '.quat(' + 
                            str(quaternions[i][0]) + ',' +
-                           str(-quaternions[i][1]) + ',' +
-                           str(-quaternions[i][2]) + ',' +
-                           str(-quaternions[i][3]) +
+                           str(quaternions[i][1]) + ',' +
+                           str(quaternions[i][2]) + ',' +
+                           str(quaternions[i][3]) +
                            ').move(' + 
                            str(deltaXs[i][0]) + ',' +
                            str(deltaXs[i][1]) + ',' +
@@ -259,9 +259,9 @@ def ConvertMolecule(molecule,
                     X_orig[d] = molecule['positions'][n][I][d]
                     AffineTransformQ(X, X_orig,
                                      [quaternions[i][0],
-                                      -quaternions[i][1],
-                                      -quaternions[i][2],
-                                      -quaternions[i][3]],
+                                      quaternions[i][1],
+                                      quaternions[i][2],
+                                      quaternions[i][3]],
                                       deltaXs[i])
                 AdjustBounds(bounds, X)
 
@@ -560,7 +560,7 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
                    '\n\n\n\n\n')
 
 
-    ConvertSystem(tree['compartments'],
+    ConvertSystem(tree,
                   file_out,
                   delta_r,
                   bounds,
