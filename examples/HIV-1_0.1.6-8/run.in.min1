@@ -4,37 +4,28 @@
 # 1) Run cellpack2lt.py to create the "system.lt" file moltemplate needs
 # 2) Run "moltemplate.sh system.lt" to create the
 #   "system.data", "system.in.init", and "system.in.settings" files LAMMPS needs
-# 3) You must have run the first stage of minimization using "run.in.min1"
-#    (using a command like: lmp_ubuntu -i run.in.min1)
-# 4) You must have run the second stage of minimization using "run.in.min2"
-#    (using a command like: lmp_ubuntu -i run.in.min2)
 
 # -- Init Section --
 
 include system.in.init
 
+# Specify the custom Gaussian force field style we will use during this step:
+include system.in.init.soft
+
 # -- Atom Definition Section --
 
-print '-----------------------------------------------------------------------'
-print 'Make sure you run LAMMPS on \"run.in.min\" before running this simulation.'
-print '(Minimization is necessary beforehand to avoid initial particle overlap.)'
-print '-----------------------------------------------------------------------'
-
-
-read_data system_after_min.data
+read_data system.data
 
 # -- Settings Section --
 
-include system.in.settings
-
-# Load the Lennard-Jones force parameters between particles
+# Load the custom Gaussian force parameters we will use during this step:
 # (Normally these are included in "sytem.in.settings", but not in this example.)
-include system.in.settings.pair.coeffs
+include system.in.settings.pair.coeffs.soft
 
 # -- Run Section --
 
 
-dump            1 all custom 5000 traj.lammpstrj id mol type x y z ix iy iz
+dump            1 all custom 5000 traj_min_soft.lammpstrj id mol type x y z ix iy iz
 
 thermo_style    custom step temp pe etotal epair ebond eangle edihed
 thermo          100       # time interval for printing out "thermo" data
@@ -59,12 +50,21 @@ neighbor 10.0 multi
 # fix fxBalance all balance 20000 xyz 20 1.4
 
 
-
+# The first step is to use a soft Gaussian repulsive force between particles
+# in an effort to deal with cases where there is complete overlap between
+# protein complexes.  (In cases where CellPack completely failed.)
+# Runing a simulation with soft Gaussian repulsive forces
+# should eliminate the worst cases of particle overlap.
+# There is a finite energy barrier for two particles to completely overlap.
+# So run these simulations at a low temperature (at least 10x lower than the 
+# height of each Gaussian barrier) to make sure particles that were not 
+# overlapping before do not start overlapping after this step.
 
 
 timestep        0.01
-fix fxLan     all langevin 0.5961621 0.5961621 500.0 48279
-run 10000000
+# Anneal the system starting at temperature kB*T/10, and ending at temperature 0
+fix fxLan     all langevin 0.05961621 0.0 100.0  48279
+run 50000
 unfix fxLan
 
-
+write_data system_after_min_soft.data

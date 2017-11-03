@@ -1,19 +1,33 @@
+# -- Prerequisites --
+#
+# Before running LAMMPS on this file, you must have already...
+# 1) Run cellpack2lt.py to create the "system.lt" file moltemplate needs
+# 2) Run "moltemplate.sh system.lt" to create the
+#   "system.data", "system.in.init", and "system.in.settings" files LAMMPS needs
+# 3) You must have run the first stage of minimization using "run.in.min1"
+#    (using a command like: lmp_ubuntu -i run.in.min1)
+
 # -- Init Section --
 
 include system.in.init
 
 # -- Atom Definition Section --
 
-read_data system.data
+read_data system_after_min_soft.data
 
 # -- Settings Section --
 
 include system.in.settings
 
+# Load the Lennard-Jones force parameters between particles
+# (Normally these are included in "sytem.in.settings", but not in this example.)
+
+include system.in.settings.pair.coeffs
+
 # -- Run Section --
 
 
-dump            1 all custom 1000 traj_min.lammpstrj id mol type x y z ix iy iz
+dump            1 all custom 10000 traj_min.lammpstrj id mol type x y z ix iy iz
 
 thermo_style    custom step temp pe etotal epair ebond eangle edihed
 thermo          100       # time interval for printing out "thermo" data
@@ -38,159 +52,159 @@ neighbor 10.0 multi
 # fix fxBalance all balance 20000 xyz 20 1.4
 
 
-
+# Now begin the regular overlap minimization simulation
 # Begin with a small timestep, and a short Langevin damping time
 # and gradually increase the timestep, and the damping time
 
 
 timestep        0.00000000001
-fix fxLan     all langevin 0.5961621 0.5961621 0.0000001 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.0000001 48279
+run 2000
 unfix fxLan
 
 timestep        0.00000000002
-fix fxLan     all langevin 0.5961621 0.5961621 0.0000002 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.0000002 48279
+run 2000
 unfix fxLan
 
 timestep        0.00000000005
-fix fxLan     all langevin 0.5961621 0.5961621 0.0000005 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.0000005 48279
+run 2000
 unfix fxLan
 
 timestep        0.0000000001
-fix fxLan     all langevin 0.5961621 0.5961621 0.000001 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.000001 48279
+run 2000
 unfix fxLan
 
 timestep        0.0000000002
-fix fxLan     all langevin 0.5961621 0.5961621 0.000002 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.000002 48279
+run 2000
 unfix fxLan
 
 timestep        0.0000000005
-fix fxLan     all langevin 0.5961621 0.5961621 0.000005 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.000005 48279
+run 2000
 unfix fxLan
 
 timestep        0.000000001
-fix fxLan     all langevin 0.5961621 0.5961621 0.00001 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.00001 48279
+run 2000
 unfix fxLan
 
 timestep        0.000000002
-fix fxLan     all langevin 0.5961621 0.5961621 0.00002 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.00002 48279
+run 2000
 unfix fxLan
 
 timestep        0.000000005
-fix fxLan     all langevin 0.5961621 0.5961621 0.00005 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.00005 48279
+run 2000
 unfix fxLan
 
 timestep        0.00000001
-fix fxLan     all langevin 0.5961621 0.5961621 0.0001 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.0001 48279
+run 2000
 unfix fxLan
 
 timestep        0.00000002
-fix fxLan     all langevin 0.5961621 0.5961621 0.0002 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.0002 48279
+run 2000
 unfix fxLan
 
 timestep        0.00000005
-fix fxLan     all langevin 0.5961621 0.5961621 0.0005 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.0005 48279
+run 2000
 unfix fxLan
 
 timestep        0.0000001
-fix fxLan     all langevin 0.5961621 0.5961621 0.001 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.001 48279
+run 2000
 unfix fxLan
 
 timestep        0.0000002
-fix fxLan     all langevin 0.5961621 0.5961621 0.002 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.002 48279
+run 2000
 unfix fxLan
 
 timestep        0.0000005
-fix fxLan     all langevin 0.5961621 0.5961621 0.005 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.005 48279
+run 2000
 unfix fxLan
 
 timestep        0.000001
-fix fxLan     all langevin 0.5961621 0.5961621 0.01 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.01 48279
+run 2000
 unfix fxLan
 
 timestep        0.000002
-fix fxLan     all langevin 0.5961621 0.5961621 0.02 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.02 48279
+run 2000
 unfix fxLan
 
 timestep        0.000005
-fix fxLan     all langevin 0.5961621 0.5961621 0.05 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.05 48279
+run 2000
 unfix fxLan
 
 timestep        0.00001
-fix fxLan     all langevin 0.5961621 0.5961621 0.01 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.01 48279
+run 2000
 unfix fxLan
 
 timestep        0.00002
-fix fxLan     all langevin 0.5961621 0.5961621 0.02 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.02 48279
+run 2000
 unfix fxLan
 
 timestep        0.00005
-fix fxLan     all langevin 0.5961621 0.5961621 0.05 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.05 48279
+run 2000
 unfix fxLan
 
 timestep        0.0001
-fix fxLan     all langevin 0.5961621 0.5961621 0.1 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.1 48279
+run 2000
 unfix fxLan
 
 timestep        0.0002
-fix fxLan     all langevin 0.5961621 0.5961621 0.2 48279
-run 5000
+fix fxLan     all langevin 0.0 0.0 0.2 48279
+run 2000
 unfix fxLan
 
 timestep        0.0005
-fix fxLan     all langevin 0.5961621 0.5961621 0.5 48279
-run 10000
+fix fxLan     all langevin 0.0 0.0 0.5 48279
+run 2000
 unfix fxLan
 
 timestep        0.001
-fix fxLan     all langevin 0.5961621 0.5961621 1.0 48279
-run 20000
+fix fxLan     all langevin 0.0 0.0 1.0 48279
+run 2000
 unfix fxLan
 
 timestep        0.002
-fix fxLan     all langevin 0.5961621 0.5961621 2.0 48279
-run 150000
-unfix fxLan
-
-timestep        0.005
-fix fxLan     all langevin 0.5961621 0.5961621 5.0 48279
+fix fxLan     all langevin 0.0 0.0 2.0 48279
 run 2000
 unfix fxLan
 
 timestep        0.005
-fix fxLan     all langevin 0.5961621 0.5961621 10.0 48279
+fix fxLan     all langevin 0.0 0.0 5.0 48279
 run 2000
 unfix fxLan
 
 timestep        0.005
-fix fxLan     all langevin 0.5961621 0.5961621 20.0 48279
+fix fxLan     all langevin 0.0 0.0 10.0 48279
+run 2000
+unfix fxLan
+
+timestep        0.01
+fix fxLan     all langevin 0.0 0.0 20.0 48279
 run 2000
 unfix fxLan
 
 
-timestep        0.005
-fix fxLan     all langevin 0.5961621 0.5961621 50.0 48279
+timestep        0.01
+fix fxLan     all langevin 0.0 0.0 50.0 48279
 run 2000
 unfix fxLan
 

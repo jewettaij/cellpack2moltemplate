@@ -11,8 +11,8 @@ moltemplate format.
 """
 
 g_program_name = __file__.split('/')[-1]   # = 'cellpack2lt.py'
-__version__ = '0.0.5'
-__date__ = '2017-10-31'
+__version__ = '0.0.6'
+__date__ = '2017-11-02'
 
 g_control_vmd_colors = False
 
@@ -39,6 +39,7 @@ doc_msg = \
 import sys, json
 from collections import defaultdict
 import numpy as np
+from math import *
 
 
 class InputError(Exception):
@@ -446,22 +447,26 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
 
 
     rmax = max(ir_needed) * delta_r
-    rcut = rmax * (2.0**(1.0/6))
+    rcut_max = rmax
     bounds = [[0.0,0.0,0.0],    #Box big enough to enclose all the particles
               [-1.0,-1.0,-1.0]] #[[xmin,ymin,zmin],[xmax,ymax,zmax]]
-    pairstyle2args['lj/cut'] = str(rcut)
-    pairstyle2args['lj/cut/coul/debye'] = str(debye)+' '+str(rcut)+' '+str(rcut)
-    pairstyle2args['lj/cut/coul/cut'] = str(rcut)
-    pairstyle2args['lj/cut/coul/long'] = str(rcut)
-    pairstyle2args['lj/class2/coul/long'] = str(rcut)
-    pairstyle2args['lj/class2/coul/cut'] = str(rcut)
+    pairstyle2args['lj/cut'] = str(2*rcut_max)
+    pairstyle2args['lj/cut/coul/debye'] = str(debye)+' '+str(rcut_max)+' '+str(rcut_max)
+    pairstyle2args['lj/cut/coul/cut'] = str(rcut_max)
+    pairstyle2args['lj/cut/coul/long'] = str(rcut_max)
+    pairstyle2args['lj/class2/coul/long'] = str(rcut_max)
+    pairstyle2args['lj/class2/coul/cut'] = str(rcut_max)
+    pairstyle2args['gauss'] = str(2.0*rcut_max)
     #pair_mixing_style = 'sixthpower tail yes'
-    pair_mixing_style = 'arithmetic'
+    pair_mixing_style = 'geometric'
     special_bonds_command = 'special_bonds lj/coul 0.0 0.0 1.0'
 
+    file_out.write('  write_once("In Settings") {\n'
+                   '    pair_modify shift yes\n'
+                   '  }\n')
+    
 
-
-    file_out.write('   write_once("In Settings") {\n')
+    file_out.write('   write_once("In Settings Pair Coeffs") {\n')
     for iradius in sorted(ir_needed):
         rcut = 2 * iradius * delta_r   #(don't forget the 2)
         r = rcut / (2.0**(1.0/6))
@@ -472,9 +477,43 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
                        str(epsilon) + ' ' +
                        str(r) + ' ' +
                        str(rcut) + '\n')
-    file_out.write('  }  #end of "In Settings" (pair_coeff commands)\n'
-                   '\n')
+    file_out.write('  }  #end of "In Settings Pair Coeffs"\n'
+                   '\n\n\n')
     default_mass = 1.0   # Users can override this later
+
+
+
+    file_out.write('   # Alternate forces used in the initial stages of minimization:\n\n')
+    file_out.write('   write_once("In Settings Pair Coeffs Soft") {\n')
+    for iradius in sorted(ir_needed):
+        rcut = 2 * iradius * delta_r   #(don't forget the 2)
+        # pair_style gauss uses the following formula for the energy:
+        # Upair(r) = A*exp(-B*r**2) = A*exp(-(0.5)*(r/sigma)**2)
+        # I will set the force distance cutoff ("rcut") to the radius
+        # defined by the JSON file created by CellPACK.
+        # The force between particles separated by larger than this distance
+        # is zero.  (We don't want the system to swell during minimization.)
+        # I'll choose the sigma parameter (gaussian width) so that the gaussian
+        # is half its peak height at r=rcut: <-> exp(-(1/2)(rcut/sigma)**2)=0.5
+        sigma = rcut / sqrt((log(2)*2))
+        # Then I will double the height of the Gaussian to compensate:
+        A = epsilon * 2.0
+        # The arguments for the pair_coeff command are "A", "B", and "rcut"
+        B = 0.5*(1.0/(sigma**2))
+        file_out.write('     pair_coeff ' +
+                       '@atom:A' + str(iradius) + ' ' +
+                       '@atom:A' + str(iradius) + ' ' +
+                       'gauss' + ' ' +
+                       str(-A) + ' ' +
+                       str(B) + ' ' +
+                       str(rcut) + '\n')
+    file_out.write('  }  #end of "In Settings Pair Coeffs Soft"\n'
+                   '\n\n\n')
+    default_mass = 1.0   # Users can override this later
+
+
+
+    
     file_out.write('  # Last I checked, LAMMPS still requires that every atom has its\n'
                    '  # mass defined in the DATA file, even if it is irrelevant.\n'
                    '  # Take care of that detail below.\n')
@@ -482,11 +521,13 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
                    '   write_once("Data Masses") {\n')
 
     for iradius in sorted(ir_needed):
-        rcut = iradius * delta_r
-        r = rcut / (2.0**(1.0/6))
+        #rcut = iradius * delta_r
+        #r = rcut / (2.0**(1.0/6))
         file_out.write('    ' +
                        '@atom:A' + str(iradius) +' '+ str(default_mass) +'\n')
-    file_out.write('  }  # end of "Data Masses"\n')
+    file_out.write('  }  # end of "Data Masses"\n\n')
+
+
     file_out.write('\n\n'
                    '  # At some point we must specify what -kind- of force fields we want to use\n'
                    '  # We must also specify how we want to measure distances and energies (units)\n'
@@ -499,9 +540,12 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
                    '    units lj        #(this means the units can be customized by the user (us))\n'
                    '\n'
                    '    pair_style hybrid ' + pairstyle + ' ' +
-                   pairstyle2args[pairstyle] + '\n')
+                   pairstyle2args[pairstyle] + '\n\n\n')
+    
+    
     file_out.write('    # For details, see\n' +
-                   '    # ' + pairstyle2docs[pairstyle] + '\n')
+                   '    # ' + pairstyle2docs[pairstyle] + '\n' +
+                   '    # ' + pairstyle2docs['gauss'] + '\n')
 
     file_out.write('    # Use ordinary Lorenz-Berthelot mixing rules.\n'
                    '    # (This means the effective minimal distance\n'
@@ -523,6 +567,12 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
                    '    neighbor 3.0 multi      # Adjust this number later to improve efficiency\n'
                    '\n')
     file_out.write('  }  # finished selecting force field styles\n')
+
+    file_out.write('  # specify the custom force field style used for minimization\n'
+                   '  write_once("In Init Soft") {\n'
+                   '    pair_style hybrid gauss ' + 
+                   pairstyle2args['gauss'] + '\n'
+                   '  }\n\n\n')
 
     file_out.write('\n'
                    '\n'
@@ -642,6 +692,7 @@ def main():
         pairstyle2docs['lj/cut/coul/long'] = 'http://lammps.sandia.gov/doc/pair_lj.html'
         pairstyle2docs['lj/class2/coul/long'] = 'http://lammps.sandia.gov/doc/pair_class2.html'
         pairstyle2docs['lj/class2/coul/cut'] = 'http://lammps.sandia.gov/doc/pair_class2.html'
+        pairstyle2docs['gauss'] = 'http://lammps.sandia.gov/doc/pair_gauss.html'
 
         argv = [arg for arg in sys.argv]
     
