@@ -19,7 +19,7 @@ read_data system_after_min_soft.data
 
 include system.in.settings
 
-# Load the Lennard-Jones force parameters between particles
+# Now load the Lennard-Jones force parameters between particles:
 # (Normally these are included in "sytem.in.settings", but not in this example.)
 
 include system.in.settings.pair.coeffs
@@ -33,117 +33,92 @@ thermo_style    custom step temp pe etotal epair ebond eangle edihed
 thermo          100       # time interval for printing out "thermo" data
 thermo_modify   norm yes flush yes
 
-# Integrate the equations of motion:
-fix fxRigid all rigid molecule
+# Molecules containing multiple atoms use rigid-body integrators to hold
+# each molecule together and preserve its shape (while allowing it to move).
+# The group of atoms named "gRigid" contains only these atoms.
+# (This group is defined in system.in.settings)
 
-# Only compute forces between particles in different molecules
-# (no need to compute forces between particles in the same rigid molecule)
-neigh_modify exclude molecule/intra all
+fix fxRigid gRigid  rigid molecule   #(move the atoms in the "gRigid" group)
+
+
+# Molecules containing only one atom do not need to be treated as rigid
+# bodies. We do not need to use rigid body integrators for them. Instead
+# we can use ordinary "fix nve" to integrate their equations of motion.
+# The group of atoms named "gOrdinary" contains only these atoms.
+# (This group is defined in system.in.settings)
+
+fix fxNVE   gOrdinary nve            #(move the atoms in the "gOrdinary" group)
+
+
+# Tell LAMMPS to only compute forces between particles in different molecules.
+# (No need to compute forces between particles in the same rigid molecule)
+# This drastically reduces the number of pairwise forces that need to
+# be calculated:
+
+neigh_modify exclude molecule/intra gRigid
+
 
 # Reduce the time spent computing neighbor lists by increasing the bin size
 # and using "multi" style (needed when a large range of radii are in use)
-neighbor 10.0 multi
+
+neighbor 20.0 multi  # <-- THIS IS A SAFE CHOICE, BUT SIMULATIONS WILL BE SLOW.
+                     #     IF YOUR SIMULATION LACKS PARTICLES/ATOMS LARGER THAN
+		     #     A RIBOSOME, THEN USE A MUCH SMALLER VALUE (ie 10.0).
+		     #     PLAY WITH THIS NUMBER TO IMPROVE THE SIMULATION SPEED
+		     #     (Later, I should get cellpack2moltemplate to choose
+		     #      this number automatically from the particle radii.)
 
 
-# Decide how to split up the simulation volume so that the same number of
-# particles get assigned to every processor.  Do this periodically
-# (As opposed to dividing up the simulation volume into equal size rectangles
-# COMMENTING OUT NEXT LINE: THIS IS NOT ALWAYS A GOOD IDEA.)
-# fix fxBalance all balance 20000 xyz 20 1.4
 
 
+# ------------------- Run the simulation ------------------------
 # Now begin the regular overlap minimization simulation
 # Begin with a small timestep, and a short Langevin damping time
 # and gradually increase the timestep, and the damping time
 
 
-timestep        0.00000000001
-fix fxLan     all langevin 0.0 0.0 0.0000001 48279
-run 2000
-unfix fxLan
-
-timestep        0.00000000002
-fix fxLan     all langevin 0.0 0.0 0.0000002 48279
-run 2000
-unfix fxLan
-
-timestep        0.00000000005
-fix fxLan     all langevin 0.0 0.0 0.0000005 48279
-run 2000
-unfix fxLan
-
-timestep        0.0000000001
-fix fxLan     all langevin 0.0 0.0 0.000001 48279
-run 2000
-unfix fxLan
-
-timestep        0.0000000002
-fix fxLan     all langevin 0.0 0.0 0.000002 48279
-run 2000
-unfix fxLan
-
-timestep        0.0000000005
-fix fxLan     all langevin 0.0 0.0 0.000005 48279
-run 2000
-unfix fxLan
-
-timestep        0.000000001
-fix fxLan     all langevin 0.0 0.0 0.00001 48279
-run 2000
-unfix fxLan
-
-timestep        0.000000002
-fix fxLan     all langevin 0.0 0.0 0.00002 48279
-run 2000
-unfix fxLan
-
-timestep        0.000000005
-fix fxLan     all langevin 0.0 0.0 0.00005 48279
-run 2000
-unfix fxLan
-
 timestep        0.00000001
-fix fxLan     all langevin 0.0 0.0 0.0001 48279
-run 2000
+fix fxLan     all langevin 0.0 0.0 0.00001 48279
+run 1000
 unfix fxLan
 
 timestep        0.00000002
-fix fxLan     all langevin 0.0 0.0 0.0002 48279
-run 2000
+fix fxLan     all langevin 0.0 0.0 0.00002 48279
+run 1000
 unfix fxLan
 
 timestep        0.00000005
-fix fxLan     all langevin 0.0 0.0 0.0005 48279
-run 2000
+fix fxLan     all langevin 0.0 0.0 0.00005 48279
+run 1000
 unfix fxLan
 
 timestep        0.0000001
+fix fxLan     all langevin 0.0 0.0 0.0001 48279
+run 1000
+unfix fxLan
+
+timestep        0.0000002
+fix fxLan     all langevin 0.0 0.0 0.0002 48279
+run 1000
+unfix fxLan
+
+timestep        0.0000005
+fix fxLan     all langevin 0.0 0.0 0.0005 48279
+run 1000
+unfix fxLan
+
+timestep        0.000001
 fix fxLan     all langevin 0.0 0.0 0.001 48279
 run 2000
 unfix fxLan
 
-timestep        0.0000002
+timestep        0.000002
 fix fxLan     all langevin 0.0 0.0 0.002 48279
 run 2000
 unfix fxLan
 
-timestep        0.0000005
-fix fxLan     all langevin 0.0 0.0 0.005 48279
-run 2000
-unfix fxLan
-
-timestep        0.000001
-fix fxLan     all langevin 0.0 0.0 0.01 48279
-run 2000
-unfix fxLan
-
-timestep        0.000002
-fix fxLan     all langevin 0.0 0.0 0.02 48279
-run 2000
-unfix fxLan
-
 timestep        0.000005
-fix fxLan     all langevin 0.0 0.0 0.05 48279
+fix fxLan     all langevin 0.0 0.0 0.005 48279
 run 2000
 unfix fxLan
 
@@ -192,21 +167,7 @@ fix fxLan     all langevin 0.0 0.0 5.0 48279
 run 2000
 unfix fxLan
 
-timestep        0.005
-fix fxLan     all langevin 0.0 0.0 10.0 48279
-run 2000
-unfix fxLan
 
-timestep        0.01
-fix fxLan     all langevin 0.0 0.0 20.0 48279
-run 2000
-unfix fxLan
-
-
-timestep        0.01
-fix fxLan     all langevin 0.0 0.0 50.0 48279
-run 2000
-unfix fxLan
 
 
 # Now that the system is minimized, save the conformation

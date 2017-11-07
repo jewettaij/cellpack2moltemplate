@@ -12,9 +12,9 @@ setup(
 
   url='https://github.com/jewettaij/cellpack2moltemplate',
 
-  download_url='https://github.com/jewettaij/cellpack2moltemplate/archive/v0.0.6.zip',
+  download_url='https://github.com/jewettaij/cellpack2moltemplate/archive/v0.1.0.zip',
 
-  version='0.0.6',
+  version='0.1.0',
 
   keywords=['CellPACK', 'moltemplate', 'simulation', 'LAMMPS'],
 

@@ -27,7 +27,7 @@ lmp_ubuntu -i run.in.min2  # <-- use hard "lennard jones" forces + langevin
 # mpiexec -np 4 lmp_ubuntu -i run.in.min2
 
 # (Minimizing the HIV example with ~100000 particles takes approximately 
-#  45 minutes or so on a 2-core laptop without GPU acceleration.)
+#  15 minutes or so on a 2-core laptop without GPU acceleration.)
 # This will create a file named "system_after_min.data" which we will
 # need in the next step.
 # Note during the minimization process, some of the proteins fly out of the core

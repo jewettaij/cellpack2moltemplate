@@ -119,8 +119,10 @@ ConvertCellPACK(fin,
 		'',
                 0.1,
                 'lj/cut',
-                {'lj/cut':'http://lammps.sandia.gov/doc/pair_lj.html'},
-		{'lj/cut':'25.0'},
+                {'lj/cut':'http://lammps.sandia.gov/doc/pair_lj.html',
+		 'gauss':'http://lammps.sandia.gov/doc/pair_gauss.html'},
+		{'lj/cut':'50.0',
+		 'gauss':'50.0'},
                 0.5961621,     # = k_B*temperature at 300K in kcal/mole
 		1.0)
 ```

@@ -18,8 +18,11 @@ read_data system.data
 
 # -- Settings Section --
 
-# Load the custom Gaussian force parameters we will use during this step:
+include system.in.settings
+
+# Now load the custom Gaussian force parameters we will use during this step:
 # (Normally these are included in "sytem.in.settings", but not in this example.)
+
 include system.in.settings.pair.coeffs.soft
 
 # -- Run Section --
@@ -31,24 +34,45 @@ thermo_style    custom step temp pe etotal epair ebond eangle edihed
 thermo          100       # time interval for printing out "thermo" data
 thermo_modify   norm yes flush yes
 
-# Integrate the equations of motion:
-fix fxRigid all rigid molecule
 
-# Only compute forces between particles in different molecules
-# (no need to compute forces between particles in the same rigid molecule)
-neigh_modify exclude molecule/intra all
+# Molecules containing multiple atoms use rigid-body integrators to hold
+# each molecule together and preserve its shape (while allowing it to move).
+# The group of atoms named "gRigid" contains only these atoms.
+# (This group is defined in system.in.settings)
+
+fix fxRigid gRigid  rigid molecule   #(move the atoms in the "gRigid" group)
+
+
+# Molecules containing only one atom do not need to be treated as rigid
+# bodies. We do not need to use rigid body integrators for them. Instead
+# we can use ordinary "fix nve" to integrate their equations of motion.
+# The group of atoms named "gOrdinary" contains only these atoms.
+# (This group is defined in system.in.settings)
+
+fix fxNVE   gOrdinary nve            #(move the atoms in the "gOrdinary" group)
+
+
+# Tell LAMMPS to only compute forces between particles in different molecules.
+# (No need to compute forces between particles in the same rigid molecule)
+# This drastically reduces the number of pairwise forces that need to
+# be calculated:
+
+neigh_modify exclude molecule/intra gRigid
+
 
 # Reduce the time spent computing neighbor lists by increasing the bin size
 # and using "multi" style (needed when a large range of radii are in use)
-neighbor 10.0 multi
+
+neighbor 20.0 multi  # <-- THIS IS A SAFE CHOICE, BUT SIMULATIONS WILL BE SLOW.
+                     #     IF YOUR SIMULATION LACKS PARTICLES/ATOMS LARGER THAN
+		     #     A RIBOSOME, THEN USE A MUCH SMALLER VALUE (ie 10.0).
+		     #     PLAY WITH THIS NUMBER TO IMPROVE THE SIMULATION SPEED
+		     #     (Later, I should get cellpack2moltemplate to choose
+		     #      this number automatically from the particle radii.)
 
 
-# Decide how to split up the simulation volume so that the same number of
-# particles get assigned to every processor.  Do this periodically
-# (As opposed to dividing up the simulation volume into equal size rectangles
-# COMMENTING OUT NEXT LINE: THIS IS NOT ALWAYS A GOOD IDEA.)
-# fix fxBalance all balance 20000 xyz 20 1.4
 
+# ------------------- Run the simulation ------------------------
 
 # The first step is to use a soft Gaussian repulsive force between particles
 # in an effort to deal with cases where there is complete overlap between
@@ -64,7 +88,7 @@ neighbor 10.0 multi
 timestep        0.01
 # Anneal the system starting at temperature kB*T/10, and ending at temperature 0
 fix fxLan     all langevin 0.05961621 0.0 100.0  48279
-run 50000
+run 40000
 unfix fxLan
 
 write_data system_after_min_soft.data

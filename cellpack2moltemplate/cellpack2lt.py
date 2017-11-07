@@ -11,8 +11,8 @@ moltemplate format.
 """
 
 g_program_name = __file__.split('/')[-1]   # = 'cellpack2lt.py'
-__version__ = '0.0.6'
-__date__ = '2017-11-02'
+__version__ = '0.1.0'
+__date__ = '2017-11-06'
 
 g_control_vmd_colors = False
 
@@ -203,7 +203,7 @@ def ConvertMolecule(molecule,
     if len(crds) != len(radii):
         raise InputError('Error: \"positions\" and \"radii\" arrays in \"'+name+'\" have unequal length.\n')
     l_mol_defs.append('\n'
-                      '      # AtomID MoleculeID AtomType Charge   X    Y    Z\n'
+                      '    #  AtomID MoleculeID AtomType Charge   X    Y    Z\n'
                       '\n')
     l_mol_defs.append('  write(\"Data Atoms\") {\n')
     assert(len(crds) == len(radii))
@@ -213,7 +213,7 @@ def ConvertMolecule(molecule,
         charge = '0.0'
         l_mol_defs.append('    $atom:a'+str(i+1)+'  $mol  '+atype_name+'  '+charge+'  '+str(crds[i][0])+' '+str(crds[i][1])+' '+str(crds[i][2])+'\n')
     l_mol_defs.append('  }  # end of: write(\"Data Atoms\") {...\n\n')
-    l_mol_defs.append('}  # end of: \"'+name+'\" molecule definition\n\n')
+    l_mol_defs.append('}  # end of: \"'+name+'\" molecule definition\n\n\n')
 
 
 
@@ -223,6 +223,10 @@ def ConvertMolecule(molecule,
     deltaXs = []
     quaternions = []
     instances = molecule['results']
+
+    if len(instances) == 0:
+        return
+
     for i in range(0, len(instances)):
         #if not (('0' in instance[i]) and ('1' in instance[i])):
         if not len(instances[i]) == 2:
@@ -234,8 +238,6 @@ def ConvertMolecule(molecule,
                             instances[i][1][1],
                             instances[i][1][2],
                             instances[i][1][3]))
-
-    l_instances.append('\n\n')
     #l_instances.append('# List of \"'+name+'\" instances:\n')
     for i in range(0, len(instances)):
         l_instances.append(name + '_instances[' + str(i) + '] = new ' + name +
@@ -252,19 +254,63 @@ def ConvertMolecule(molecule,
         # Now determine the minimum/maximum coordinates of this object
         # and adjust the simulation box boundaries if necessary
         Xnid = molecule['positions']
-        for n in range(0, len(molecule['positions'])):
+        for n in range(0, len(molecule['positions'])):  #loop over "subunits" of this molecule
             X_orig = [0.0, 0.0, 0.0]
             X = [0.0, 0.0, 0.0]
             for I in range(0, len(Xnid[n])):  #loop over atoms
                 for d in range(0, 3):
-                    X_orig[d] = molecule['positions'][n][I][d]
+                    X_orig[d] = Xnid[n][I][d]
                     AffineTransformQ(X, X_orig,
                                      [quaternions[i][0],
                                       quaternions[i][1],
                                       quaternions[i][2],
                                       quaternions[i][3]],
                                       deltaXs[i])
-                AdjustBounds(bounds, X)
+                AdjustBounds(bounds, [X[0]-r_ni[n][I], X[1], X[2]])
+                AdjustBounds(bounds, [X[0]+r_ni[n][I], X[1], X[2]])
+                AdjustBounds(bounds, [X[0], X[1]-r_ni[n][I], X[2]])
+                AdjustBounds(bounds, [X[0], X[1]+r_ni[n][I], X[2]])
+                AdjustBounds(bounds, [X[0], X[1], X[2]-r_ni[n][I]])
+                AdjustBounds(bounds, [X[0], X[1], X[2]+r_ni[n][I]])
+
+
+    N = len(crds)    # = number of particles in this molecule type
+    if N > 1:
+
+        # Molecules containing multiple atoms use rigid-body integrators to hold
+        # each molecule together and preserve its shape.  We must define a group
+        # of atoms (gRigid) containing atoms belonging to these rigid molecules.
+        # http://lammps.sandia.gov/doc/group.html
+        # http://lammps.sandia.gov/doc/fix_rigid.html
+
+        l_instances += ['\n',
+                        'write("In Settings") {\n',
+                        ('  group gRigid id ' +
+                         '${atom:' + name + '_instances[0]/a1}:' +
+                         '${atom:' + name + '_instances[' +
+                         str(len(instances)-1) + ']/a' +
+                         str(N) + '}\n'),
+                        '}\n',
+                        '\n',
+                        '\n']
+    else:
+
+        # Molecules containing only one atom do not need to be treated as rigid
+        # bodies. We do not need to use rigid body integrators for them. Instead
+        # we can use ordinary "fix nve" to integrate their equations of motion.
+        # We must define a group of atoms, "gOrdinary", containing these atoms.
+        # http://lammps.sandia.gov/doc/group.html
+        # http://lammps.sandia.gov/doc/fix_nve.html
+
+        l_instances += ['\n',
+                        '\n',
+                        'write("In Settings") {\n',
+                        ('  group gOrdinary id ' +
+                         '$atom:' + name + '_instances[0]/a1 \n'),
+                        '}\n',
+                        '\n']
+
+
 
     if g_control_vmd_colors:
         for i in range(0, len(instances)):
@@ -301,7 +347,7 @@ def ConvertMolecules(molecules,
     file_out.write('\n' + 
                    (nindent*'  ') + '# ----------- molecule definitions -----------\n'
                    '\n')
-                   
+
     file_out.write((nindent*'  ') + (nindent*'  ').join(l_mol_defs))
     file_out.write('\n' +
                    nindent*'  ' + '# ----------- molecule instances -----------\n' +
@@ -456,15 +502,10 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
     pairstyle2args['lj/cut/coul/long'] = str(rcut_max)
     pairstyle2args['lj/class2/coul/long'] = str(rcut_max)
     pairstyle2args['lj/class2/coul/cut'] = str(rcut_max)
-    pairstyle2args['gauss'] = str(2.0*rcut_max)
-    #pair_mixing_style = 'sixthpower tail yes'
-    pair_mixing_style = 'geometric'
+    pairstyle2args['gauss'] = str(rcut_max)
+    #pair_mixing_style = 'geometric' <-- NO do not use geometric
+    pair_mixing_style = 'arithmetic'
     special_bonds_command = 'special_bonds lj/coul 0.0 0.0 1.0'
-
-    file_out.write('  write_once("In Settings") {\n'
-                   '    pair_modify shift yes\n'
-                   '  }\n')
-    
 
     file_out.write('   write_once("In Settings Pair Coeffs") {\n')
     for iradius in sorted(ir_needed):
@@ -547,16 +588,28 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
                    '    # ' + pairstyle2docs[pairstyle] + '\n' +
                    '    # ' + pairstyle2docs['gauss'] + '\n')
 
-    file_out.write('    # Use ordinary Lorenz-Berthelot mixing rules.\n'
+    file_out.write('\n'
+                   '    # The next command is optional but useful when using Lennard Jones forces:\n'
+                   '\n'
+                   '    pair_modify shift yes\n'
+                   '\n'
+                   '\n')
+
+    file_out.write('\n'
+                   '    # Use ordinary Lorenz-Berthelot mixing rules.\n'
                    '    # (This means the effective minimal distance\n'
                    '    #  between unlike particles is the sum of their radii,\n'
                    '    #  as it would be if they were hard spheres)\n'
                    '\n'
-                   '    pair_modify mix ' + pair_mixing_style + '\n')
+                   '    pair_modify mix ' + pair_mixing_style + '\n'
+                   '\n')
+
     file_out.write('\n'
                    '    # The next line is probably not relevant, since we\n'
                    '    # do not have any bonds in our system.\n'
-                   '    ' + special_bonds_command + '\n')
+                   '    ' + special_bonds_command + '\n'
+                   '\n')
+
     file_out.write('\n'
                    '    # If I am not mistaken, the next two lines help speed up the computation\n'
                    '    # of neighbor lists.  They are necessary because of the wide diversity\n'
@@ -590,16 +643,29 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
 
     file_out.write('\n'
                    '\n'
-                   '  ### Note: Use a rigid-body integrator to keep the particles\n'
-                   '  ###      in each molecule from moving relative to eachother:\n'
-                   #'\n'
-                   #'  #write_once("In Settings") {\n'
-                   '  # group gRigid @atom:.../ForceField/*\n'
-                   '  # http://lammps.sandia.gov/doc/group.html\n'
-                   '  #\n'
-                   '  # fix fxRigid gRigid rigid molecule\n'
-                   '  # http://lammps.sandia.gov/doc/fix_rigid.html\n'
-                   '  #\n'
+                   '  write_once("In Settings") {\n' +
+                   '\n'
+                   '    # Note: Atoms in the "gRigid" group use a rigid-body integrator to keep\n'
+                   '    #       them from moving relative to eachother in each molecule.\n'
+                   '    #       Other atoms (in the "gOrdinary") group use the standard Verlet\n'
+                   '    #       algorithm for movement. In some cases these groups are empty.\n'
+                   '    #       Even so, we must make sure both the "gRigid" and "gOrdinary"\n'
+                   '    #       groups are defined so we can refer to them later. We do that below\n'
+                   '    # http://lammps.sandia.gov/doc/group.html\n'
+                   '    group gRigid id 1       # define a group\n' +
+                   '    group gRigid clear      # initialize it to be empty\n' +
+                   '    group gOrdinary id 1    # define a group\n' +
+                   '    group gOrdinary clear   # initialize it to be empty\n' +
+                   '    #\n'
+                   '    # Note: Later on we will use:\n'
+                   '    #   fix fxRigid gRigid rigid molecule\n'
+                   '    #   fix fxNVE gOrdinary nve\n'
+                   '    # For details see:\n'
+                   '    #   http://lammps.sandia.gov/doc/fix_rigid.html\n'
+                   '    #   http://lammps.sandia.gov/doc/fix_nve.html\n'
+                   '    #\n'
+                   '\n'
+                   '  }\n'
                    '  ### This next line greatly increases the speed of the simulation:\n'
                    '  ### No need to calculate forces between particles in the same rigid molecule\n'
                    '  # neigh_modify exclude molecule/intra gRigid\n'
@@ -622,10 +688,6 @@ def ConvertCellPACK(file_in,        # typically sys.stdin
     
 
     # Print the simulation boundary conditions
-
-    for d in range(0, 3):      # Simulation particles are not point-like
-        bounds[0][d] -= rcut   # add extra space to the boundary box to 
-        bounds[1][d] += rcut   # accomodate particles of finite size (rcut)
 
     file_out.write('\n\n'
                    '# Simulation boundaries:\n'
