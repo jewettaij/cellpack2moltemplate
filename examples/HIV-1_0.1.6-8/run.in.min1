@@ -25,6 +25,11 @@ include system.in.settings
 
 include system.in.settings.pair.coeffs.soft
 
+# Warn LAMMPS that there might be a large disparity in particle sizes:
+# For details, see  http://lammps.sandia.gov/doc/neigh_modify.html
+
+neigh_modify one 20000 page 200000
+
 # -- Run Section --
 
 
@@ -57,7 +62,7 @@ fix fxNVE   gOrdinary nve            #(move the atoms in the "gOrdinary" group)
 # This drastically reduces the number of pairwise forces that need to
 # be calculated:
 
-neigh_modify exclude molecule/intra gRigid one 20000 page 200000
+neigh_modify exclude molecule/intra gRigid
 
 
 # Reduce the time spent computing neighbor lists by increasing the bin size

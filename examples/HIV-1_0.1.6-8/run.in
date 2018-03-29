@@ -33,6 +33,10 @@ include system.in.settings
 
 include system.in.settings.pair.coeffs
 
+# Warn LAMMPS that there might be a large disparity in particle sizes:
+# For details, see  http://lammps.sandia.gov/doc/neigh_modify.html
+
+neigh_modify one 20000 page 200000
 
 # -- Run Section --
 
