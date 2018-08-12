@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-# Author: Andrew Jewett (jewett.aij at g mail)
-# License: 3-clause BSD License  (See LICENSE.TXT)
-# Copyright (c) 2017, California Institute of Technology
+# Authors: Andrew Jewett (Scripps) and Ludovic Autin (Scripps)
+# License: 3-clause BSD License  (See LICENSE.md)
+# Copyright (c) 2018, Scripps Research Institute
 # All rights reserved.
 
 """
@@ -11,8 +11,8 @@ moltemplate format.
 """
 
 g_program_name = __file__.split('/')[-1]   # = 'cellpack2lt.py'
-__version__ = '0.1.0'
-__date__ = '2017-11-06'
+__version__ = '0.1.1'
+__date__ = '2018-8-12'
 
 g_control_vmd_colors = False
 
@@ -144,8 +144,8 @@ def RadiiNeeded(tree,
     if 'radii' in tree:
         r_ni = tree['radii']
         for n in range(0, len(tree['radii'])): #loop over "subunits" of this molecule
-            for i in range(0, len(r_ni[n])):   #loop over atoms
-                iradius = int(round(r_ni[n][i]/delta_r))  #(quantize the radii)
+            for i in range(0, len(r_ni[n]['radii'])):   #loop over atoms
+                iradius = int(round(r_ni[n]['radii'][i]/delta_r))  #(quantize the radii)
                 ir_needed.add(iradius)
     else:
         for object_name in tree:
@@ -161,7 +161,7 @@ def ConvertMolecule(molecule,
                     delta_r,
                     bounds):
     """ 
-    Convert all inforation concering a type of molecule defined in a 
+    Convert all information concerning a type of molecule defined in a 
     CellPACK JSON file into moltemplate format.
     In this context, a \"molecule\" is defined as the smallest possible 
     subunit in the JSON files created by CellPACK, and it is assumed to
@@ -189,15 +189,15 @@ def ConvertMolecule(molecule,
     # from each of them, appending the coordinates together into one big list:
     Xnid = molecule['positions']
     for n in range(0, len(molecule['positions'])):  #loop over "subunits" of this molecule
-        for i in range(0, len(Xnid[n])):  #loop over atoms
-            crds.append((Xnid[n][i][0],
-                         Xnid[n][i][1],
-                         Xnid[n][i][2]))
+        for i in range(0, len(Xnid[n]['coords'])/3):  #loop over atoms
+            crds.append((Xnid[n]['coords'][3*i+0],
+                         Xnid[n]['coords'][3*i+1],
+                         Xnid[n]['coords'][3*i+2]))
     # Do the same for the radii
     r_ni = molecule['radii']
     for n in range(0, len(molecule['radii'])): #loop over "subunits" of this molecule
-        for i in range(0, len(r_ni[n])):       #loop over atoms
-            radii.append(r_ni[n][i])
+        for i in range(0, len(r_ni[n]['radii'])):       #loop over atoms
+            radii.append(r_ni[n]['radii'][i])
             #iradius = int(round(radii[i]/delta_r))  #(quantize the radii)
             #ir_needed.add(iradius)
     if len(crds) != len(radii):
@@ -257,21 +257,21 @@ def ConvertMolecule(molecule,
         for n in range(0, len(molecule['positions'])):  #loop over "subunits" of this molecule
             X_orig = [0.0, 0.0, 0.0]
             X = [0.0, 0.0, 0.0]
-            for I in range(0, len(Xnid[n])):  #loop over atoms
+            for I in range(0, len(Xnid[n]['coords'])/3):  #loop over atoms
                 for d in range(0, 3):
-                    X_orig[d] = Xnid[n][I][d]
+                    X_orig[d] = Xnid[n]['coords'][3*I+d]
                     AffineTransformQ(X, X_orig,
                                      [quaternions[i][0],
                                       quaternions[i][1],
                                       quaternions[i][2],
                                       quaternions[i][3]],
                                       deltaXs[i])
-                AdjustBounds(bounds, [X[0]-r_ni[n][I], X[1], X[2]])
-                AdjustBounds(bounds, [X[0]+r_ni[n][I], X[1], X[2]])
-                AdjustBounds(bounds, [X[0], X[1]-r_ni[n][I], X[2]])
-                AdjustBounds(bounds, [X[0], X[1]+r_ni[n][I], X[2]])
-                AdjustBounds(bounds, [X[0], X[1], X[2]-r_ni[n][I]])
-                AdjustBounds(bounds, [X[0], X[1], X[2]+r_ni[n][I]])
+                AdjustBounds(bounds, [X[0]-r_ni[n]['radii'][I], X[1], X[2]])
+                AdjustBounds(bounds, [X[0]+r_ni[n]['radii'][I], X[1], X[2]])
+                AdjustBounds(bounds, [X[0], X[1]-r_ni[n]['radii'][I], X[2]])
+                AdjustBounds(bounds, [X[0], X[1]+r_ni[n]['radii'][I], X[2]])
+                AdjustBounds(bounds, [X[0], X[1], X[2]-r_ni[n]['radii'][I]])
+                AdjustBounds(bounds, [X[0], X[1], X[2]+r_ni[n]['radii'][I]])
 
 
     N = len(crds)    # = number of particles in this molecule type

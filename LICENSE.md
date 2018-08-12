@@ -1,7 +1,7 @@
 Modified BSD License (BSD-3-Clause)
 ====================
 
-_Copyright © `2017`, `California Institute of Technology`
+_Copyright © `2017`, `Scripps`
 _All rights reserved._
 
 Redistribution and use in source and binary forms, with or without
