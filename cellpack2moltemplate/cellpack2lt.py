@@ -11,8 +11,8 @@ moltemplate format.
 """
 
 g_program_name = __file__.split('/')[-1]   # = 'cellpack2lt.py'
-__version__ = '0.1.1'
-__date__ = '2018-8-12'
+__version__ = '0.2.1'
+__date__ = '2018-8-13'
 
 g_control_vmd_colors = False
 
@@ -306,7 +306,10 @@ def ConvertMolecule(molecule,
                         '\n',
                         'write("In Settings") {\n',
                         ('  group gOrdinary id ' +
-                         '$atom:' + name + '_instances[0]/a1 \n'),
+                         '${atom:' + name + '_instances[0]/a1}:' +
+                         '${atom:' + name + '_instances[' +
+                         str(len(instances)-1) + ']/a' +
+                         str(N) + '}\n'),
                         '}\n',
                         '\n']
 
