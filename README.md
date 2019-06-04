@@ -165,3 +165,7 @@ cellpack2moltemplate depends on numpy
 cellpack2moltemplate is available under the terms of the open-source 3-clause
 BSD license.  (See `LICENSE.md`.)
 
+## Funding
+
+CellPACK and Moltemplate are funded by NIH grant R01GM120604.
+
