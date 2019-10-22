@@ -1,3 +1,5 @@
+[![License](https://img.shields.io/badge/License-MIT-green.svg)]
+
 cellpack2moltemplate
 ===========
 
@@ -162,8 +164,8 @@ cellpack2moltemplate depends on numpy
 
 ## License
 
-cellpack2moltemplate is available under the terms of the open-source 3-clause
-BSD license.  (See `LICENSE.md`.)
+cellpack2moltemplate is available under the terms of the
+[MIT license](LICENSE.md).
 
 ## Funding
 
