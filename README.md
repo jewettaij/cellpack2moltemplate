@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-MIT-green.svg)]
+[![GitHub](https://img.shields.io/github/license/jewettaij/cellpack2moltemplate)](./LICENSE.md)
 
 cellpack2moltemplate
 ===========
